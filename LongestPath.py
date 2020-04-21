@@ -1,13 +1,13 @@
 import Graph as gr
 import time
 
-FILE = 'counter.dimacs'
+FILE = 'counter-b1.dimacs'
 
 with open(FILE) as f:
     details = list(f.readline().split())
     num_nodes = int(details[2])
     START = 1
-    END = 5
+    END = 9
     if START < 0 or START > num_nodes or END < 0 or END > num_nodes:
         print("Incorrect Start and End values")
         exit(1)

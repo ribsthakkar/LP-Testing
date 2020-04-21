@@ -46,27 +46,35 @@ class Graph():
         return list(filter(lambda x: vert in x.adjacent, self._nodes))
 
     def dijkstra(self, start):
+        self.reset_weights()
         q = []
         q.append(self._nodes[start])
         self._nodes[start].weight = 0
         heapq.heapify(q)
         while len(q):
             current = heapq.heappop(q)
+            # print(current, q)
             if current.visit:
                 continue
             current.mark()
             for adj, edge_weight in current.adjacent.items():
-                if not adj.visit:
-                    if adj.weight > current.weight + edge_weight:
-                        adj.weight = current.weight + edge_weight
-                        adj.prev = current
+                if adj.weight > current.weight + edge_weight:
+                    adj.weight = current.weight + edge_weight
+                    adj.prev = current
+                if adj not in q:
                     heapq.heappush(q, adj)
+                else:
+                    heapq.heapify(q)
         self.unmark_all()
         d = dict()
         for i in range(len(self._nodes)):
             d[i] = self._nodes[i].weight
-            self._nodes[i].weight = float('inf')
+            # self._nodes[i].weight = float('inf')
         return d
+
+    def reset_weights(self):
+        for i in range(len(self._nodes)):
+            self._nodes[i].weight = float('inf')
 
     def non_zero_dijkstra(self, start):
         q = []
@@ -100,6 +108,7 @@ class Graph():
         return self.dijkstra(start)[end], self.pathfromHere(end)
 
     def longest(self, start, end):
+        self.reset_weights()
         temp_g = self
         removed_edges = dict()
         i = 0
@@ -124,14 +133,15 @@ class Graph():
                     edg = (pth[idx-1].id, pth[idx].id)
                     # print(edg)
                     e, d = temp_g.remove_edge(edg)
-                    rec_tree = {nod: temp_g.all_reachable(nod) for nod in temp_g.nodes()}
-                    rec_tree.pop(end)
-                    if rec_tree == reachability and merge_w > 0:
-                        non_disjoint.append((LinkType.SIMPLE_LINK, -merge_w, edg))
-                    if rec_tree == reachability:
-                        non_disjoint.append((LinkType.ALL_NODE_DISCONNECT, d['weight'], edg))
+                    rec_tree = {nod: temp_g.all_reachable(nod) for nod in filter(lambda x: x != end, temp_g.nodes())}
+                    dest_reachable = all(rec_tree[nod][end] == reachability[nod][end] for nod in filter(lambda x: x != end, temp_g.nodes()))
+                    # rec_tree.pop(end)
+                    if dest_reachable and merge_w > 0:
+                        non_disjoint.append((LinkType.SIMPLE_LINK, -merge_w, -idx, edg))
+                    if dest_reachable:
+                        non_disjoint.append((LinkType.ALL_NODE_DISCONNECT, d['weight'], -idx, edg))
                     if rec_tree[start][end]:
-                        non_disjoint.append((LinkType.OD_DISCONNECT, d['weight'], edg))
+                        non_disjoint.append((LinkType.OD_DISCONNECT, d['weight'], -idx, edg))
                     temp_g.add_edge(edg[0], edg[1], d['weight'])
 
             # print("Non-dis", non_disjoint)
@@ -140,7 +150,7 @@ class Graph():
                     self.add_edge(e[0], e[1], w['weight'])
                 return sps[end], pth
             else:
-                rem_e = min(non_disjoint)[2]
+                rem_e = min(non_disjoint)[3]
                 # print("Rem E", rem_e)
                 e, w = temp_g.remove_edge(rem_e)
                 removed_edges[e] = w
@@ -245,4 +255,4 @@ class Node():
         return str(self.id)
 
     def __repr__(self):
-        return str(self.id)
+        return str(self.id) # + ":" + str(self.weight)
