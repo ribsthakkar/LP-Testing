@@ -1,6 +1,17 @@
 import heapq
 from collections import deque
+from enum import Enum
+from functools import total_ordering
 
+@total_ordering
+class LinkType(Enum):
+    SIMPLE_LINK=0
+    ALL_NODE_DISCONNECT=1
+    OD_DISCONNECT=2
+    def __lt__(self, other):
+        if self.__class__ is other.__class__:
+            return self.value < other.value
+        return NotImplemented
 
 class Graph():
     def __init__(self, nodes):
@@ -116,11 +127,11 @@ class Graph():
                     rec_tree = {nod: temp_g.all_reachable(nod) for nod in temp_g.nodes()}
                     rec_tree.pop(end)
                     if rec_tree == reachability and merge_w > 0:
-                        non_disjoint.append((-1 * merge_w, edg))
+                        non_disjoint.append((LinkType.SIMPLE_LINK, merge_w, edg))
                     if rec_tree == reachability:
-                        non_disjoint.append((0, edg))
+                        non_disjoint.append((LinkType.ALL_NODE_DISCONNECT, d['weight'], edg))
                     if rec_tree[start][end]:
-                        non_disjoint.append((1, edg))
+                        non_disjoint.append((LinkType.OD_DISCONNECT, d['weight'], edg))
                     temp_g.add_edge(edg[0], edg[1], d['weight'])
 
             # print("Non-dis", non_disjoint)
@@ -129,7 +140,7 @@ class Graph():
                     self.add_edge(e[0], e[1], w['weight'])
                 return sps[end], pth
             else:
-                rem_e = min(non_disjoint, key=lambda x: (x[0], temp_g._edges[x[1]]['weight']))[1]
+                rem_e = min(non_disjoint)[2]
                 # print("Rem E", rem_e)
                 e, w = temp_g.remove_edge(rem_e)
                 removed_edges[e] = w
