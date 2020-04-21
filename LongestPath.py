@@ -1,13 +1,13 @@
 import Graph as gr
 import time
 
-FILE = 'counter-b1.dimacs'
+FILE = 'kalptest1.dimacs'
 
 with open(FILE) as f:
     details = list(f.readline().split())
     num_nodes = int(details[2])
     START = 1
-    END = 9
+    END = 400
     if START < 0 or START > num_nodes or END < 0 or END > num_nodes:
         print("Incorrect Start and End values")
         exit(1)

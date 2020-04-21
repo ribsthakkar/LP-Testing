@@ -112,8 +112,9 @@ class Graph():
         temp_g = self
         removed_edges = dict()
         i = 0
-        reachability = {nod: self.all_reachable(nod) for nod in self.nodes()}
-        reachability.pop(end)
+        # reachability = {nod: self.all_reachable(nod) for nod in self.nodes()}
+        # reachability.pop(end)
+        reachability = {nod: self.isreachable(nod, end) for nod in filter(lambda x: x != end, temp_g.nodes())}
         while True:
             sps = temp_g.dijkstra(start)
             pth = temp_g.pathfromHere(end)
@@ -133,14 +134,15 @@ class Graph():
                     edg = (pth[idx-1].id, pth[idx].id)
                     # print(edg)
                     e, d = temp_g.remove_edge(edg)
-                    rec_tree = {nod: temp_g.all_reachable(nod) for nod in filter(lambda x: x != end, temp_g.nodes())}
-                    dest_reachable = all(rec_tree[nod][end] == reachability[nod][end] for nod in filter(lambda x: x != end, temp_g.nodes()))
+                    # rec_tree = {nod: temp_g.all_reachable(nod) for nod in filter(lambda x: x != end, temp_g.nodes())}
+                    rec_tree = {nod: temp_g.isreachable(nod, end) for nod in filter(lambda x: x != end, temp_g.nodes())}
+                    dest_reachable = all(rec_tree[nod] == reachability[nod] for nod in filter(lambda x: x != end, temp_g.nodes()))
                     # rec_tree.pop(end)
                     if dest_reachable and  float('inf') > merge_w > 0:
                         non_disjoint.append((LinkType.SIMPLE_LINK, -merge_w, -idx, edg))
                     if dest_reachable:
                         non_disjoint.append((LinkType.ALL_NODE_DISCONNECT, d['weight'], -idx, edg))
-                    if rec_tree[start][end]:
+                    if rec_tree[start]:
                         non_disjoint.append((LinkType.OD_DISCONNECT, d['weight'], -idx, edg))
                     temp_g.add_edge(edg[0], edg[1], d['weight'])
 
