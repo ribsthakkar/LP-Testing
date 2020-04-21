@@ -127,7 +127,7 @@ class Graph():
                     rec_tree = {nod: temp_g.all_reachable(nod) for nod in temp_g.nodes()}
                     rec_tree.pop(end)
                     if rec_tree == reachability and merge_w > 0:
-                        non_disjoint.append((LinkType.SIMPLE_LINK, merge_w, edg))
+                        non_disjoint.append((LinkType.SIMPLE_LINK, -merge_w, edg))
                     if rec_tree == reachability:
                         non_disjoint.append((LinkType.ALL_NODE_DISCONNECT, d['weight'], edg))
                     if rec_tree[start][end]:
