@@ -136,7 +136,7 @@ class Graph():
                     rec_tree = {nod: temp_g.all_reachable(nod) for nod in filter(lambda x: x != end, temp_g.nodes())}
                     dest_reachable = all(rec_tree[nod][end] == reachability[nod][end] for nod in filter(lambda x: x != end, temp_g.nodes()))
                     # rec_tree.pop(end)
-                    if dest_reachable and merge_w > 0:
+                    if dest_reachable and  float('inf') > merge_w > 0:
                         non_disjoint.append((LinkType.SIMPLE_LINK, -merge_w, -idx, edg))
                     if dest_reachable:
                         non_disjoint.append((LinkType.ALL_NODE_DISCONNECT, d['weight'], -idx, edg))
