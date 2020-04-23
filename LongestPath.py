@@ -29,6 +29,6 @@ end_t = time.time()
 print("Shortest Path Time: ", end_t-start_t)
 
 start_t = time.time()
-print(g.longest(START, END))
+print(g.longest_v2(START, END))
 end_t = time.time()
 print("Longest Path Time: ", end_t-start_t)
